@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas da Chácara</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div id="login-section" class="section">
+            <div class="house-container">
+                <div class="house">
+                    <div class="roof"></div>
+                    <div class="door"></div>
+                    <div class="window"></div>
+                </div>
+            </div>
+            <h2>Bem-vindo às Tarefas da Chácara!</h2>
+            <p class="welcome-text">Digite a senha para começar suas tarefas do dia:</p>
+            <div class="password-container">
+                <input type="password" id="password" placeholder="Digite a senha">
+                <button onclick="login()" class="login-button">Entrar</button>
+            </div>
+            <div class="login-rules">
+                <p>📱 Lembre-se: Você só pode usar o celular por 2 horas</p>
+                <p>✅ E apenas depois de terminar todas as tarefas!</p>
+            </div>
+        </div>
+
+        <div id="main-section" class="section hidden">
+            <h1>📋 TAREFAS DO DIA – CHÁCARA</h1>
+            
+            <div class="task-section">
+                <h2>🏡 DENTRO DE CASA</h2>
+                <div class="task-list" id="inside-tasks">
+                    <div class="task">
+                        <input type="checkbox" id="task1">
+                        <label for="task1">Varrer toda a casa</label>
+                        <input type="time" class="time-input">
+                    </div>
+                    <div class="task">
+                        <input type="checkbox" id="task2">
+                        <label for="task2">Lavar toda a louça</label>
+                        <input type="time" class="time-input">
+                    </div>
+                    <div class="task">
+                        <input type="checkbox" id="task3">
+                        <label for="task3">Passar pano no chão</label>
+                        <input type="time" class="time-input">
+                    </div>
+                    <div class="task">
+                        <input type="checkbox" id="task4">
+                        <label for="task4">Arrumar todas as camas</label>
+                        <input type="time" class="time-input">
+                    </div>
+                    <div class="task">
+                        <input type="checkbox" id="task5">
+                        <label for="task5">Recolher os lixos:</label>
+                        <div class="subtasks">
+                            <div class="task">
+                                <input type="checkbox" id="task5-1">
+                                <label for="task5-1">Lixo do banheiro</label>
+                                <input type="time" class="time-input">
+                            </div>
+                            <div class="task">
+                                <input type="checkbox" id="task5-2">
+                                <label for="task5-2">Lixo da cozinha</label>
+                                <input type="time" class="time-input">
+                            </div>
+                            <div class="task">
+                                <input type="checkbox" id="task5-3">
+                                <label for="task5-3">Lixo dos quartos, se houver</label>
+                                <input type="time" class="time-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-section">
+                <h2>🌳 ÁREA EXTERNA (QUINTAL/CHÁCARA)</h2>
+                <div class="task-list" id="outside-tasks">
+                    <div class="task">
+                        <input type="checkbox" id="task6">
+                        <label for="task6">Varrer toda a área externa</label>
+                        <input type="time" class="time-input">
+                    </div>
+                    <div class="task">
+                        <input type="checkbox" id="task7">
+                        <label for="task7">Recolher todos os lixos jogados no chão</label>
+                        <input type="time" class="time-input">
+                    </div>
+                    <div class="task">
+                        <input type="checkbox" id="task8">
+                        <label for="task8">Organizar ferramentas e objetos fora do lugar</label>
+                        <input type="time" class="time-input">
+                    </div>
+                </div>
+            </div>
+
+            <div class="rules-section">
+                <h2>⛔ REGRAS IMPORTANTES</h2>
+                <ul>
+                    <li>🚫 PROIBIDO DORMIR DURANTE O DIA! → Se dormir: castigo dobrado.</li>
+                    <li>💻 COMPUTADOR / CELULAR: → Permitido apenas 2 HORAS por dia → Somente se todas as tarefas forem cumpridas</li>
+                </ul>
+            </div>
+
+            <div class="controls">
+                <button onclick="saveTasks()">Salvar Tarefas</button>
+                <button onclick="showReport()">Ver Relatório</button>
+            </div>
+        </div>
+
+        <div id="report-section" class="section hidden">
+            <h2>Relatório do Dia</h2>
+            <div id="report-content"></div>
+            <button onclick="backToMain()">Voltar</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
