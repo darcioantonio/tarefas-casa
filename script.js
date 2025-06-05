@@ -109,9 +109,16 @@ function saveTasks() {
         const timeInput = taskElement.querySelector('.time-input');
         
         if (checkbox && label) {
-            // Se a tarefa foi marcada agora, registrar a hora atual
-            if (checkbox.checked && !timeInput.value) {
-                timeInput.value = getCurrentTime();
+            // Limpar o campo de hora se a tarefa for desmarcada
+            if (!checkbox.checked) {
+                if (timeInput) {
+                    timeInput.value = ''; // Limpa o valor no input
+                }
+            } else if (checkbox.checked && !timeInput.value) {
+                // Se a tarefa foi marcada agora e não tem hora, registrar a hora atual
+                if (timeInput) {
+                     timeInput.value = getCurrentTime();
+                }
             }
             
             tasks.push({
@@ -166,23 +173,45 @@ function loadTasks() {
     .then((doc) => {
         if (doc.exists) {
             const data = doc.data();
-            data.tasks.forEach(task => {
-                const checkbox = document.getElementById(task.id);
-                const timeInput = checkbox.parentElement.querySelector('.time-input');
+            // Iterar sobre as tarefas no HTML para garantir que todas sejam processadas
+            document.querySelectorAll('.task').forEach(taskElement => {
+                const checkbox = taskElement.querySelector('input[type="checkbox"]');
+                const timeInput = taskElement.querySelector('.time-input');
+                const taskId = checkbox ? checkbox.id : null;
                 
-                if (checkbox) {
-                    checkbox.checked = task.completed;
-                }
-                if (timeInput && task.time) {
-                    timeInput.value = task.time;
-                    // Desabilitar edição do campo de hora
-                    timeInput.readOnly = true;
+                if (taskId) {
+                    // Encontrar os dados correspondentes no que veio do Firebase
+                    const savedTask = data.tasks.find(t => t.id === taskId);
+
+                    if (checkbox) {
+                        // Se houver dados salvos para esta tarefa
+                        if (savedTask) {
+                            checkbox.checked = savedTask.completed;
+                        } else {
+                             // Se não houver dados salvos, desmarcar por padrão
+                            checkbox.checked = false;
+                        }
+                    }
+
+                    if (timeInput) {
+                         // Se houver dados salvos e a tarefa estiver marcada e tiver hora
+                        if (savedTask && savedTask.completed && savedTask.time) {
+                            timeInput.value = savedTask.time;
+                            timeInput.readOnly = true; // Manter readOnly se tiver hora
+                        } else {
+                             // Caso contrário, limpar o campo de hora e garantir que não seja readOnly
+                            timeInput.value = '';
+                            timeInput.readOnly = true; // Ainda queremos que seja readOnly para Matheus, apenas limpamos o valor
+                        }
+                    }
                 }
             });
         }
+         // Se não houver documento para hoje, as tarefas ficarão desmarcadas e campos de hora vazios por padrão ao carregar o HTML
     })
     .catch((error) => {
         console.error("Erro ao carregar: ", error);
+         // Em caso de erro, as tarefas também ficarão desmarcadas e campos de hora vazios
     });
 }
 
@@ -265,13 +294,12 @@ function backToMain() {
     }, 500);
 }
 
-// Adicionar evento para salvar automaticamente quando uma tarefa é marcada
+// Adicionar evento para salvar automaticamente quando uma tarefa é marcada ou desmarcada
 document.addEventListener('change', function(e) {
-    if (e.target.type === 'checkbox') {
+    if (e.target.type === 'checkbox') { // Salva apenas ao marcar/desmarcar checkbox
         const timeInput = e.target.parentElement.querySelector('.time-input');
-        if (e.target.checked && !timeInput.value) {
-            timeInput.value = getCurrentTime();
-        }
+        // A lógica de preencher a hora foi movida para saveTasks para lidar com desmarcar também
         saveTasks();
     }
+    // Remover o evento para inputs de hora aqui
 }); 
