@@ -2,21 +2,23 @@
 document.write(`
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics-compat.js"></script>
 `);
 
 // Configuração do Firebase
 const firebaseConfig = {
-    // Substitua estas credenciais pelas suas do Firebase
-    apiKey: "SUA_API_KEY",
-    authDomain: "seu-projeto.firebaseapp.com",
-    projectId: "seu-projeto",
-    storageBucket: "seu-projeto.appspot.com",
-    messagingSenderId: "seu-messaging-sender-id",
-    appId: "seu-app-id"
+    apiKey: "AIzaSyCWK2xPykUlr2f0EI99Jwd5mIMACYk_ULA",
+    authDomain: "tarefas-casa-bffb3.firebaseapp.com",
+    projectId: "tarefas-casa-bffb3",
+    storageBucket: "tarefas-casa-bffb3.firebasestorage.app",
+    messagingSenderId: "451284325896",
+    appId: "1:451284325896:web:d6327a8ee5e5652b77a3bd",
+    measurementId: "G-XX85QDC1SH"
 };
 
 // Inicialização do Firebase
 firebase.initializeApp(firebaseConfig);
+const analytics = firebase.analytics();
 const db = firebase.firestore();
 
 // Elementos da interface
@@ -98,6 +100,11 @@ function saveTasks() {
     })
     .then(() => {
         showSaveAnimation();
+        // Registrar evento no Analytics
+        analytics.logEvent('tasks_saved', {
+            date: today,
+            tasks_count: tasks.length
+        });
     })
     .catch((error) => {
         console.error("Erro ao salvar: ", error);
@@ -174,6 +181,11 @@ function showReport() {
                     reportSection.style.opacity = '1';
                 }, 100);
             }, 500);
+
+            // Registrar evento no Analytics
+            analytics.logEvent('report_viewed', {
+                date: today
+            });
         } else {
             alert('Nenhum relatório encontrado para hoje!');
         }
