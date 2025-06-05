@@ -115,7 +115,12 @@
         </div>
 
         <div id="report-section" class="section hidden">
-            <h2>Relatório do Dia</h2>
+            <h2>Relatório de Tarefas</h2>
+            <div class="report-controls">
+                <label for="report-date">Ver tarefas de:</label>
+                <input type="date" id="report-date">
+                <button onclick="showReport()">Mostrar</button>
+            </div>
             <div id="report-content"></div>
             <button onclick="backToMain()">Voltar</button>
         </div>

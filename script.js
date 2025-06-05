@@ -29,6 +29,7 @@ const reportContent = document.getElementById('report-content');
 const passwordInput = document.getElementById('password');
 const house = document.querySelector('.house');
 const controls = document.querySelector('.controls');
+const reportDateInput = document.getElementById('report-date');
 
 // Variável para armazenar o tipo de usuário
 let currentUser = null;
@@ -187,20 +188,21 @@ function loadTasks() {
 
 // Função para mostrar o relatório
 function showReport() {
-    const today = new Date().toISOString().split('T')[0];
+    const selectedDate = reportDateInput.value;
+    let targetDate = selectedDate || new Date().toISOString().split('T')[0];
     
-    db.collection('tasks').doc(today).get()
+    db.collection('tasks').doc(targetDate).get()
     .then((doc) => {
         if (doc.exists) {
             const data = doc.data();
             let reportHTML = '<h3>Relatório do Dia</h3>';
-            reportHTML += '<p>Data: ' + new Date().toLocaleDateString() + '</p>';
+            reportHTML += '<p>Data: ' + new Date(targetDate + 'T12:00:00').toLocaleDateString('pt-BR') + '</p>';
             reportHTML += '<ul>';
             
             data.tasks.forEach(task => {
                 const status = task.completed ? '✅' : '❌';
                 const time = task.time ? ` (${task.time})` : '';
-                const lastUpdated = new Date(task.lastUpdated).toLocaleTimeString('pt-BR');
+                const lastUpdated = task.lastUpdated ? new Date(task.lastUpdated).toLocaleTimeString('pt-BR') : '';
                 reportHTML += `<li>${status} ${task.name}${time} - Registrado às: ${lastUpdated}</li>`;
             });
             
@@ -219,16 +221,34 @@ function showReport() {
 
             // Registrar evento no Analytics
             analytics.logEvent('report_viewed', {
-                date: today,
+                date: targetDate,
                 user: currentUser
             });
         } else {
-            alert('Nenhum relatório encontrado para hoje!');
+            reportContent.innerHTML = '<p>Nenhum relatório encontrado para esta data.</p>';
+             mainSection.style.opacity = '0';
+            setTimeout(() => {
+                mainSection.classList.add('hidden');
+                reportSection.classList.remove('hidden');
+                reportSection.style.opacity = '0';
+                setTimeout(() => {
+                    reportSection.style.opacity = '1';
+                }, 100);
+            }, 500);
         }
     })
     .catch((error) => {
         console.error("Erro ao carregar relatório: ", error);
-        alert('Erro ao carregar o relatório!');
+        reportContent.innerHTML = '<p>Erro ao carregar o relatório.</p>';
+         mainSection.style.opacity = '0';
+            setTimeout(() => {
+                mainSection.classList.add('hidden');
+                reportSection.classList.remove('hidden');
+                reportSection.style.opacity = '0';
+                setTimeout(() => {
+                    reportSection.style.opacity = '1';
+                }, 100);
+            }, 500);
     });
 }
 
