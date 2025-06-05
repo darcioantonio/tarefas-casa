@@ -28,6 +28,10 @@ const reportSection = document.getElementById('report-section');
 const reportContent = document.getElementById('report-content');
 const passwordInput = document.getElementById('password');
 const house = document.querySelector('.house');
+const controls = document.querySelector('.controls');
+
+// Variável para armazenar o tipo de usuário
+let currentUser = null;
 
 // Animação da casinha
 function animateHouse() {
@@ -43,7 +47,8 @@ house.addEventListener('click', animateHouse);
 // Função de login com animação
 function login() {
     const password = passwordInput.value;
-    if (password === 'admin') {
+    if (password === 'admin' || password === 'matheus') {
+        currentUser = password;
         // Animação de transição
         loginSection.style.opacity = '0';
         setTimeout(() => {
@@ -54,6 +59,20 @@ function login() {
                 mainSection.style.opacity = '1';
             }, 100);
             loadTasks();
+            
+            // Configurar interface baseada no tipo de usuário
+            if (currentUser === 'admin') {
+                // Admin vê apenas o relatório
+                document.querySelectorAll('.task-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                document.querySelector('.rules-section').style.display = 'none';
+                controls.innerHTML = '<button onclick="showReport()">Ver Relatório</button>';
+            } else {
+                // Matheus vê apenas as tarefas
+                reportSection.style.display = 'none';
+                controls.innerHTML = '<button onclick="saveTasks()">Salvar Tarefas</button>';
+            }
         }, 500);
     } else {
         // Animação de erro
@@ -74,6 +93,12 @@ passwordInput.addEventListener('keypress', function(e) {
     }
 });
 
+// Função para obter a hora atual formatada
+function getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
 // Função para salvar as tarefas
 function saveTasks() {
     const tasks = [];
@@ -83,11 +108,17 @@ function saveTasks() {
         const timeInput = taskElement.querySelector('.time-input');
         
         if (checkbox && label) {
+            // Se a tarefa foi marcada agora, registrar a hora atual
+            if (checkbox.checked && !timeInput.value) {
+                timeInput.value = getCurrentTime();
+            }
+            
             tasks.push({
                 id: checkbox.id,
                 name: label.textContent,
                 completed: checkbox.checked,
-                time: timeInput ? timeInput.value : null
+                time: timeInput ? timeInput.value : null,
+                lastUpdated: new Date().toISOString()
             });
         }
     });
@@ -103,7 +134,8 @@ function saveTasks() {
         // Registrar evento no Analytics
         analytics.logEvent('tasks_saved', {
             date: today,
-            tasks_count: tasks.length
+            tasks_count: tasks.length,
+            user: currentUser
         });
     })
     .catch((error) => {
@@ -142,6 +174,8 @@ function loadTasks() {
                 }
                 if (timeInput && task.time) {
                     timeInput.value = task.time;
+                    // Desabilitar edição do campo de hora
+                    timeInput.readOnly = true;
                 }
             });
         }
@@ -166,7 +200,8 @@ function showReport() {
             data.tasks.forEach(task => {
                 const status = task.completed ? '✅' : '❌';
                 const time = task.time ? ` (${task.time})` : '';
-                reportHTML += `<li>${status} ${task.name}${time}</li>`;
+                const lastUpdated = new Date(task.lastUpdated).toLocaleTimeString('pt-BR');
+                reportHTML += `<li>${status} ${task.name}${time} - Registrado às: ${lastUpdated}</li>`;
             });
             
             reportHTML += '</ul>';
@@ -184,7 +219,8 @@ function showReport() {
 
             // Registrar evento no Analytics
             analytics.logEvent('report_viewed', {
-                date: today
+                date: today,
+                user: currentUser
             });
         } else {
             alert('Nenhum relatório encontrado para hoje!');
@@ -211,7 +247,11 @@ function backToMain() {
 
 // Adicionar evento para salvar automaticamente quando uma tarefa é marcada
 document.addEventListener('change', function(e) {
-    if (e.target.type === 'checkbox' || e.target.classList.contains('time-input')) {
+    if (e.target.type === 'checkbox') {
+        const timeInput = e.target.parentElement.querySelector('.time-input');
+        if (e.target.checked && !timeInput.value) {
+            timeInput.value = getCurrentTime();
+        }
         saveTasks();
     }
 }); 
